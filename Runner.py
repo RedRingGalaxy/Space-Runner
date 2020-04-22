@@ -29,9 +29,11 @@ def play(screen):
 
     previous_obstacle_loc = Constant.DISPLAY_WIDTH
     obstacles_speed = 5
+    score = 0
+    level = 1
 
     player = Players()
-    player.rect.x = 0
+    player.rect.x = 100
     player.rect.y = Constant.DISPLAY_HEIGHT - player.rect.height
 
     active_items = pygame.sprite.Group()
@@ -95,19 +97,25 @@ def play(screen):
 
 
         if len(obstacles) < 6:
-            previous_obstacle_loc += 500
+            
+            l = random.randint(1,2)
 
-            l = int(random.randrange(1,2,1))
+            nxtpos = Constant.DISPLAY_WIDTH
+
+            if len(obstacles) > 0:
+                spt = obstacles.sprites()[len(obstacles) - 1] 
+                nxtpos = spt.rect.x + spt.rect.width 
+
+            previous_obstacle_loc = nxtpos + random.randint(300,500)
 
             for i in range(l):
                 itm = random.randint(4,7)
                 obst = Fields.Field_items(itm)
-                obst.rect.x = previous_obstacle_loc + 10
+                obst.rect.x = random.randint(40,50) + previous_obstacle_loc
                 obst.height = Constant.DISPLAY_HEIGHT - obst.rect.height
                 obst.speed = obstacles_speed
                 obstacles.add(obst)
-                previous_obstacle_loc = obst.rect.x + obst.rect.width
-
+            
 
         for item in sky_list:
             if item.rect.x + item.rect.width < 0:
@@ -119,7 +127,7 @@ def play(screen):
             if item.rect.x + item.rect.width < 0:
                 obstacles.remove(item)
 
-        hit = pygame.sprite.spritecollide(player, obstacles, False)
+        hit = pygame.sprite.spritecollide(player, obstacles, False,pygame.sprite.collide_mask)
 
         if len(hit) > 0:
             player.Alive = False
@@ -131,8 +139,23 @@ def play(screen):
         obstacles.update()
 
         sky_list.draw(screen)
+        pygame.draw.line(screen, (0,0,0),(0,Constant.DISPLAY_HEIGHT - 50), (Constant.DISPLAY_WIDTH, Constant.DISPLAY_HEIGHT - 50 ))
         active_items.draw(screen)
         obstacles.draw(screen)
+
+        score += 0.2
+        font = pygame.font.Font('freesansbold.ttf', 24)
+        text = font.render( "Your Score: " + str(int(score)) + "        Level: " + str(level) , True, (0,0,0))
+        trect = text.get_rect()
+        trect.x = Constant.DISPLAY_WIDTH //2 - 200
+        trect.y = 100
+        screen.blit(text,trect)
+
+        if int(score) /  500  ==  level and int(score) > 0 and level < 5:
+            obstacles_speed += 1
+            level += 1
+            for item in obstacles:
+                item.speed = obstacles_speed
 
         pygame.display.flip()
 

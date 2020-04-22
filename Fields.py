@@ -31,6 +31,8 @@ class Field_items(pygame.sprite.Sprite):
         
         self.rect = self.image.get_rect()
 
+        self.mask = pygame.mask.from_surface(self.image)
+
     def update(self):
         self.rect.x -= self.speed
         self.rect.y = self.height
